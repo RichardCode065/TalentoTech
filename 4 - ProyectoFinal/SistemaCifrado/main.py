@@ -1,28 +1,28 @@
 # main.py
-from funciones import vigenere
 import os
+from funciones import vigenere
 
-def main():
-    archivo = "documentos/texto.txt"
-    clave = "CLAVE"
+def ejecutarVigenere(rutaArchivo, clave):
+    if not os.path.exists(rutaArchivo):
+        return "El archivo no existe."
 
-    if not os.path.exists(archivo):
-        print("El archivo no existe.")
-        return
+    try:
+        # Leer contenido según tipo de archivo
+        texto = vigenere.leerArchivo(rutaArchivo)
+        if not texto:
+            return "El archivo está vacío o no pudo ser leído."
 
-    with open(archivo, 'r', encoding='utf-8') as f:
-        texto = f.read()
+        # Cifrado
+        cifrado = vigenere.cifrarVigenere(texto, clave)
+        rutaCifrado = rutaArchivo.rsplit('.', 1)[0] + "_Vigenere.txt"
+        vigenere.guardarArchivo(cifrado, rutaCifrado)
 
-    cifrado = vigenere.cifrar_vigenere(texto, clave)
-    with open("documentos/textoVigenere.txt", 'w', encoding='utf-8') as f:
-        f.write(cifrado)
+        # Descifrado
+        descifrado = vigenere.descifrarVigenere(cifrado, clave)
+        rutaDescifrado = rutaArchivo.rsplit('.', 1)[0] + "_Vigenere_Descifrado.txt"
+        vigenere.guardarArchivo(descifrado, rutaDescifrado)
 
-    descifrado = vigenere.descifrar_vigenere(cifrado, clave)
-    with open("documentos/textoDescifrado.txt", 'w', encoding='utf-8') as f:
-        f.write(descifrado)
+        return f"Cifrado y Descifrado Vigenère completado.\n\nCifrado: {rutaCifrado}\nDescifrado: {rutaDescifrado}"
 
-    print("Cifrado y descifrado Vigenère completado.")
-
-if __name__ == "__main__":
-    main()
-
+    except Exception as e:
+        return f"Error durante el proceso Vigenère: {str(e)}"

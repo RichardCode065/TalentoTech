@@ -1,28 +1,28 @@
 # mainFernet.py
-from funciones import fernet
 import os
+from funciones import fernet
 
-def main():
-    rutaArchivo = "documentos/texto.txt"
+def ejecutarFernet(rutaArchivo):
     rutaClave = "claves/clave.key"
+    os.makedirs("claves", exist_ok=True)
 
-    # Verificar si existe la clave, si no se genera
-    if not os.path.exists(rutaClave):
-        print("Clave no encontrada, generando nueva...")
-        os.makedirs("claves", exist_ok=True)
-        clave = fernet.generarClave(rutaClave)
-    else:
-        clave = fernet.cargarClave(rutaClave)
+    try:
+        # Verificar si la clave existe, si no, generar una nueva
+        if not os.path.exists(rutaClave):
+            clave = fernet.generarClave(rutaClave)
+        else:
+            clave = fernet.cargarClave(rutaClave)
 
-    if not os.path.exists(rutaArchivo):
-        print("El archivo a cifrar no existe.")
-        return
+        if not os.path.exists(rutaArchivo):
+            return "El archivo a cifrar no existe."
 
-    rutaCifrado = fernet.cifrarArchivo(rutaArchivo, clave)
-    print(f"Archivo cifrado: {rutaCifrado}")
+        # Cifrar archivo
+        rutaCifrado = fernet.cifrarArchivo(rutaArchivo, clave)
 
-    ruta_descifrado = fernet.descifrar_archivo(rutaCifrado, clave)
-    print(f"Archivo descifrado: {ruta_descifrado}")
+        # Descifrar archivo
+        rutaDescifrado = fernet.descifrarArchivo(rutaCifrado, clave)
 
-if __name__ == "__main__":
-    main()
+        return f"Cifrado y Descifrado Fernet completado.\n\nCifrado: {rutaCifrado}\nDescifrado: {rutaDescifrado}"
+
+    except Exception as e:
+        return f"Error durante el proceso Fernet: {str(e)}"
