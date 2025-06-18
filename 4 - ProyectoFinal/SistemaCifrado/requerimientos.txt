@@ -1,0 +1,14 @@
+Instalacion Recomendada!
+    pip install -r requirements.txt
+
+librerías externas a instalar
+    cryptography         # Para cifrado y descifrado con Fernet (cifrado simétrico)
+    python-docx          # Para leer y escribir archivos .docx (Microsoft Word)
+    PyPDF2               # Para leer archivos PDF
+    reportlab            # Para generar y guardar archivos PDF
+
+Librerías estándar de Python
+    os: Manejo de archivos y rutas
+    logging: Registro de errores
+    tkinter: Interfaz gráfica de usuario
+    filedialog, messagebox: Módulos de tkinter para selección de archivos y ventanas emergentes

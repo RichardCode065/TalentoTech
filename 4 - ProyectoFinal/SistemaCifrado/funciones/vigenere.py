@@ -1,8 +1,16 @@
+" Módulo de cifrado y descifrado de archivos usando Vigenere. Soporta archivos .txt, .pdf y .docx."
+" Incluye funciones para lectura, cifrado y descifrado de contenido. "
+
+# Importacion de librerias
 import os
 import docx
-from PyPDF2 import PdfReader, PdfWriter
+from PyPDF2 import PdfReader
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 
 def leerArchivo(ruta):
+    "Lee archivo de texto, PDF o Word (.docx) y devuelve su contenido como texto."
+
     ext = os.path.splitext(ruta)[1].lower()
     if ext == '.txt':
         with open(ruta, 'r', encoding='utf-8') as f:
@@ -20,23 +28,39 @@ def leerArchivo(ruta):
         raise ValueError("Formato de archivo no soportado")
 
 def guardarArchivo(texto, ruta):
+    "Guarda texto en .txt, .pdf o .docx según la extensión de la ruta."
+
     ext = os.path.splitext(ruta)[1].lower()
+
     if ext == '.txt':
         with open(ruta, 'w', encoding='utf-8') as f:
             f.write(texto)
+
     elif ext == '.pdf':
-        writer = PdfWriter()
-        writer.add_blank_page(width=72 * 8.5, height=72 * 11)
-        raise NotImplementedError("Guardar PDF no está implementado completamente.")
+        c = canvas.Canvas(ruta, pagesize=letter)
+        width, height = letter
+        y = height - 40  # margen superior
+
+        for linea in texto.split('\n'):
+            c.drawString(40, y, linea[:100])  # cortar línea si es muy larga
+            y -= 15
+            if y < 40:
+                c.showPage()
+                y = height - 40
+        c.save()
+
     elif ext == '.docx':
         doc = docx.Document()
         for linea in texto.split('\n'):
             doc.add_paragraph(linea)
         doc.save(ruta)
+
     else:
         raise ValueError("Formato de archivo no soportado")
 
 def cifrarVigenere(texto, clave):
+    "Aplica el cifrado Vigenère a un texto plano usando la clave proporcionada."
+
     resultado = ""
     clave = clave.upper()
     indice_clave = 0
@@ -53,6 +77,8 @@ def cifrarVigenere(texto, clave):
     return resultado
 
 def descifrarVigenere(texto, clave):
+    "Descifra un texto cifrado con Vigenère usando la clave original."
+
     resultado = ""
     clave = clave.upper()
     indice_clave = 0
