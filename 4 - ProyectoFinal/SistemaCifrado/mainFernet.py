@@ -1,59 +1,99 @@
-#Importacion de librerias
+"""
+mainFernet.py - Módulo principal para ejecutar el cifrado y descifrado usando Fernet.
+Soporta archivos de texto (.txt), documentos Word (.docx) y PDF (.pdf).
+Registra errores en un archivo de log y asegura las carpetas necesarias.
+"""
+
+# Importación de librerías
 import os
 import logging
-from funciones import fernet  # Importa el módulo que contiene las funciones para cifrado Fernet
+from funciones import fernet  # Módulo personalizado con las funciones de Fernet
 
 # Crear las carpetas necesarias si no existen
-os.makedirs("logs", exist_ok=True)     # Carpeta para logs de errores
-os.makedirs("claves", exist_ok=True)   # Carpeta para almacenar la clave generada
+os.makedirs("logs", exist_ok=True)
+os.makedirs("claves", exist_ok=True)
 
 # Configuración del sistema de logging
 logging.basicConfig(
-    filename='logs/error.log',                  # Archivo donde se guardarán los errores
-    level=logging.ERROR,                        # Nivel: solo se guardarán errores
-    format='%(asctime)s - %(levelname)s - %(message)s'  # Formato del mensaje
+    filename='logs/error.log',
+    level=logging.ERROR,
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-def ejecutarFernet(rutaArchivo):
-    """ Ejecuta el proceso de cifrado y descifrado usando Fernet sobre un archivo dado.
-    Parámetros:
-        rutaArchivo (str): Ruta al archivo original que se desea cifrar.
-    Retorna:
-        str: Mensaje informativo con rutas de los archivos generados o errores encontrados.
+def cifrarFernet(rutaArchivo):
     """
+    Cifra un archivo usando Fernet, generando una clave si es necesario.
 
-    rutaClave = "claves/clave.key"  # Ruta donde se guarda o carga la clave de cifrado
+    Parámetros:
+        rutaArchivo (str): Ruta del archivo original a cifrar.
+
+    Retorna:
+        str: Ruta del archivo cifrado o mensaje de error.
+    """
+    rutaClave = "claves/clave.key"
+
+    if not os.path.exists(rutaArchivo):
+        mensaje = "El archivo a cifrar no existe."
+        logging.error(mensaje)
+        return mensaje
 
     try:
-        # Validar que el archivo de entrada exista
-        if not os.path.exists(rutaArchivo):
-            mensaje = "El archivo a cifrar no existe."
-            logging.error(mensaje)
-            return mensaje
+        clave = (
+            fernet.cargarClave(rutaClave)
+            if os.path.exists(rutaClave)
+            else fernet.generarClave(rutaClave)
+        )
 
-        # Verificar si ya existe una clave Fernet. Si no, generarla.
-        if os.path.exists(rutaClave):
-            clave = fernet.cargarClave(rutaClave)  # Cargar clave existente
-        else:
-            clave = fernet.generarClave(rutaClave)  # Generar nueva clave y guardarla
-
-        # Cifrar el archivo (se guarda como binario con extensión .cif)
         rutaCifrado = rutaArchivo.rsplit('.', 1)[0] + "_Fernet.cif"
         fernet.cifrarArchivo(rutaArchivo, clave, rutaCifrado)
 
-        # Descifrar el archivo cifrado y reconstruirlo en su formato original
-        extension_original = os.path.splitext(rutaArchivo)[1].lower()
-        rutaDescifrado = rutaArchivo.rsplit('.', 1)[0] + "_Fernet_Descifrado" + extension_original
+        return f"✅ Cifrado Fernet completado.\nArchivo cifrado: {rutaCifrado}"
+
+    except Exception as error:
+        logging.error(f"Error durante el cifrado Fernet: {str(error)}")
+        return "❌ Error durante el cifrado. Revisa 'logs/error.log'."
+
+def descifrarFernet(rutaArchivoOriginal):
+    """
+    Descifra un archivo cifrado con Fernet y lo reconstruye en su formato original.
+
+    Parámetros:
+        rutaArchivoOriginal (str): Ruta del archivo original que fue cifrado.
+
+    Retorna:
+        str: Ruta del archivo descifrado o mensaje de error.
+    """
+    rutaClave = "claves/clave.key"
+    rutaCifrado = rutaArchivoOriginal.rsplit('.', 1)[0] + "_Fernet.cif"
+
+    if not os.path.exists(rutaCifrado):
+        mensaje = "El archivo cifrado no existe."
+        logging.error(mensaje)
+        return mensaje
+
+    try:
+        clave = fernet.cargarClave(rutaClave)
+        extension = os.path.splitext(rutaArchivoOriginal)[1].lower()
+        rutaDescifrado = rutaArchivoOriginal.rsplit('.', 1)[0] + "_Fernet_Descifrado" + extension
+
         fernet.descifrarArchivo(rutaCifrado, clave, rutaDescifrado)
 
-        # Retornar mensaje exitoso con rutas de los archivos cifrado y descifrado
-        return (
-            "✅ Proceso Fernet completado con éxito.\n"
-            f" Archivo cifrado: {rutaCifrado}\n"
-            f" Archivo descifrado: {rutaDescifrado}"
-        )
+        return f"✅ Descifrado Fernet completado.\nArchivo descifrado: {rutaDescifrado}"
 
-    except Exception as e:
-        # En caso de error inesperado, registrarlo y devolver un mensaje genérico
-        logging.error(f"Error durante el proceso Fernet: {str(e)}")
-        return "Ha ocurrido un error. Revisa el archivo 'logs/error.log' para más detalles."
+    except Exception as error:
+        logging.error(f"Error durante el descifrado Fernet: {str(error)}")
+        return "❌ Error durante el descifrado. Revisa 'logs/error.log'."
+
+def ejecutarFernet(rutaArchivo):
+    """
+    Ejecuta cifrado y descifrado completo de un archivo usando Fernet.
+
+    Parámetros:
+        rutaArchivo (str): Ruta del archivo original.
+
+    Retorna:
+        str: Resumen del proceso o mensaje de error.
+    """
+    mensaje1 = cifrarFernet(rutaArchivo)
+    mensaje2 = descifrarFernet(rutaArchivo)
+    return f"{mensaje1}\n{mensaje2}"

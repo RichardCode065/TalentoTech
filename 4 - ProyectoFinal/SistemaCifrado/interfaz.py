@@ -1,35 +1,32 @@
-#Importacion de libererias
 import os
 import logging
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from main import ejecutarVigenere
-from mainFernet import ejecutarFernet
 
-# Asegurar que la carpeta de logs exista
+from main import cifrarVigenere, descifrarVigenere
+from mainFernet import cifrarFernet, descifrarFernet
+
+# Crear carpeta de logs si no existe
 os.makedirs("logs", exist_ok=True)
 
-# Configurar el logger para registrar errores
+# Configurar logger
 logging.basicConfig(
     filename='logs/error.log',
     level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# Paleta de colores personalizada para la interfaz
+# Colores de la interfaz
 COLORFONDO = "#455372"
 COLORCONTENEDOR = "#336699"
 COLORBOTON = "#FFFFF0"
 COLORTEXTO = "#FFFFF0"
 COLORALERTA = "#CC3333"
 
-# Variable global para almacenar la ruta del archivo seleccionado
+# Archivo seleccionado
 archivoSeleccionado = ""
 
 def seleccionarArchivo():
-    "Abre una ventana de diálogo para que el usuario seleccione un archivo."
-    "Actualiza la etiqueta de ruta con la ubicación del archivo."
-    
     global archivoSeleccionado
     ruta = filedialog.askopenfilename(
         title="Seleccionar archivo",
@@ -43,56 +40,64 @@ def seleccionarArchivo():
         archivoSeleccionado = ruta
         etiquetaRuta.config(text=f"Archivo: {ruta}")
 
-def ejecutarVigenereDesdeGui():
-    "Ejecuta el cifrado y descifrado usando el algoritmo Vigenère con la clave proporcionada por el usuario."
-
+def cifrarVigenereDesdeGui():
     if not archivoSeleccionado:
         messagebox.showwarning("Atención", "Debes seleccionar un archivo primero.")
         return
-
     clave = entradaClave.get()
     if not clave:
-        messagebox.showwarning("Atención", "Debes ingresar una clave para Vigenère.")
+        messagebox.showwarning("Atención", "Debes ingresar una clave.")
         return
-
-    resultado = ejecutarVigenere(archivoSeleccionado, clave)
+    resultado = cifrarVigenere(archivoSeleccionado, clave)
     messagebox.showinfo("Resultado", resultado)
 
-def ejecutarFernetDesdeGui():
-    " Ejecuta el cifrado y descifrado usando el algoritmo Fernet sin necesidad de clave proporcionada por el usuario."
-    
-    if archivoSeleccionado:
-        resultado = ejecutarFernet(archivoSeleccionado)
-        messagebox.showinfo("Resultado", resultado)
-    else:
+def descifrarVigenereDesdeGui():
+    if not archivoSeleccionado:
+        messagebox.showwarning("Atención", "Selecciona el archivo cifrado.")
+        return
+    clave = entradaClave.get()
+    if not clave:
+        messagebox.showwarning("Atención", "Debes ingresar una clave.")
+        return
+    resultado = descifrarVigenere(archivoSeleccionado, clave)
+    messagebox.showinfo("Resultado", resultado)
+
+def cifrarFernetDesdeGui():
+    if not archivoSeleccionado:
         messagebox.showwarning("Atención", "Debes seleccionar un archivo primero.")
+        return
+    resultado = cifrarFernet(archivoSeleccionado)
+    messagebox.showinfo("Resultado", resultado)
+
+def descifrarFernetDesdeGui():
+    if not archivoSeleccionado:
+        messagebox.showwarning("Atención", "Selecciona el archivo cifrado (.cif).")
+        return
+    resultado = descifrarFernet(archivoSeleccionado)
+    messagebox.showinfo("Resultado", resultado)
 
 def interfazPrincipal():
-    " Crea e inicia la interfaz gráfica del sistema de cifrado. Permite al usuario seleccionar archivos y aplicar los algoritmos de cifrado."
-    
     global etiquetaRuta, entradaClave
 
-    # Configuración general de la ventana
     ventana = tk.Tk()
     ventana.title("Sistema de Cifrado")
-    ventana.geometry("550x500")
+    ventana.geometry("600x550")
     ventana.configure(bg=COLORFONDO)
     ventana.resizable(False, False)
 
-    # Contenedor principal para los elementos
     contenedor = tk.Frame(ventana, bg=COLORCONTENEDOR, padx=30, pady=30)
     contenedor.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
-    # Título del sistema
+    # Título
     tk.Label(
         contenedor,
-        text="Sistema de Cifrado",
+        text="Sistema de Cifrado de Archivos",
         font=("Baskerville Old Face", 20, "bold"),
         bg=COLORCONTENEDOR,
         fg=COLORTEXTO
     ).pack(pady=(0, 20))
 
-    # Botón para seleccionar un archivo
+    # Botón de selección de archivo
     tk.Button(
         contenedor,
         text="Seleccionar archivo",
@@ -103,7 +108,6 @@ def interfazPrincipal():
         relief="flat"
     ).pack(pady=10, fill="x")
 
-    # Etiqueta que muestra la ruta del archivo seleccionado
     etiquetaRuta = tk.Label(
         contenedor,
         text="Ningún archivo seleccionado",
@@ -113,16 +117,15 @@ def interfazPrincipal():
     )
     etiquetaRuta.pack(pady=(5, 15))
 
-    # Etiqueta para la entrada de clave Vigenère
+    # Entrada de clave Vigenère
     tk.Label(
         contenedor,
-        text="Clave Vigenère:",
+        text="Clave para Vigenère:",
         font=("Baskerville Old Face", 12, "bold"),
         bg=COLORCONTENEDOR,
         fg=COLORTEXTO
     ).pack()
 
-    # Campo de entrada para la clave Vigenère
     entradaClave = tk.Entry(
         contenedor,
         font=("Baskerville Old Face", 12),
@@ -130,29 +133,49 @@ def interfazPrincipal():
     )
     entradaClave.pack(pady=(0, 15))
 
-    # Botón para ejecutar Vigenère
+    # Botones de Vigenère
     tk.Button(
         contenedor,
-        text="Cifrado Vigenère",
+        text="Cifrar Vigenère",
         font=("Baskerville Old Face", 14),
         bg=COLORBOTON,
         fg=COLORFONDO,
-        command=ejecutarVigenereDesdeGui,
+        command=cifrarVigenereDesdeGui,
         relief="flat"
-    ).pack(pady=10, fill="x")
+    ).pack(pady=5, fill="x")
 
-    # Botón para ejecutar Fernet
     tk.Button(
         contenedor,
-        text="Cifrado Fernet",
+        text="Descifrar Vigenère",
         font=("Baskerville Old Face", 14),
         bg=COLORBOTON,
         fg=COLORFONDO,
-        command=ejecutarFernetDesdeGui,
+        command=descifrarVigenereDesdeGui,
+        relief="flat"
+    ).pack(pady=5, fill="x")
+
+    # Botones de Fernet
+    tk.Button(
+        contenedor,
+        text="Cifrar Fernet",
+        font=("Baskerville Old Face", 14),
+        bg=COLORBOTON,
+        fg=COLORFONDO,
+        command=cifrarFernetDesdeGui,
         relief="flat"
     ).pack(pady=10, fill="x")
 
-    # Botón para cerrar la aplicación
+    tk.Button(
+        contenedor,
+        text="Descifrar Fernet",
+        font=("Baskerville Old Face", 14),
+        bg=COLORBOTON,
+        fg=COLORFONDO,
+        command=descifrarFernetDesdeGui,
+        relief="flat"
+    ).pack(pady=5, fill="x")
+
+    # Botón salir
     tk.Button(
         contenedor,
         text="Salir",
@@ -161,11 +184,9 @@ def interfazPrincipal():
         fg=COLORTEXTO,
         command=ventana.destroy,
         relief="flat"
-    ).pack(pady=10, fill="x")
+    ).pack(pady=15, fill="x")
 
-    # Inicia el bucle de eventos
     ventana.mainloop()
 
-# Punto de entrada de la aplicación
 if __name__ == "__main__":
     interfazPrincipal()
