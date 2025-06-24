@@ -16,13 +16,13 @@ Desarrollar un sistema completo que permita aplicar distintos algoritmos de cifr
 
 ## 📁 Estructura del Proyecto
 
-├── 1 - Entrenamiento/ # Introducción a programación y cifrados básicos
-├── 2 - Experiencia/ # Aplicación de cifrados simétricos, asimétricos y teoría numérica
-├── 3 - Conexion/ # Teoría de grafos aplicada a sistemas seguros
-├── 4 - ProyectoFinal/
-│ ├── Documentos/ # PDFs explicativos del proyecto
-│ ├── SistemaCifrado/ # Código final con interfaz gráfica
-│ └── requerimientos.txt # Librerías necesarias
+- ├── 1 - Entrenamiento/ # Introducción a programación y cifrados básicos.
+- ├── 2 - Experiencia/ # Aplicación de cifrados simétricos, asimétricos y teoría numérica.
+- ├── 3 - Conexion/ # Teoría de grafos aplicada a sistemas seguros.
+- ├── 4 - ProyectoFinal/.
+- │ ├── Documentos/ # PDFs explicativos del proyecto.
+- │ ├── SistemaCifrado/ # Código final con interfaz gráfica.
+- │ └── requerimientos.txt # Librerías necesarias.
 
 ---
 
