@@ -2,3 +2,7 @@
 2025-06-24 22:20:12,427 - ERROR - El archivo cifrado no existe.
 2025-06-24 22:20:16,507 - ERROR - Error durante el cifrado Fernet: Tipo de archivo no soportado para lectura
 2025-06-24 22:20:34,739 - ERROR - El archivo cifrado no existe.
+2025-06-24 22:52:18,090 - ERROR - \u274c La clave debe contener solo letras (A-Z, a-z), sin espacios ni símbolos.
+2025-06-24 22:52:31,325 - ERROR - \u274c La clave debe contener solo letras (A-Z, a-z), sin espacios ni símbolos.
+2025-06-24 23:00:10,067 - ERROR - \u274c La clave debe contener solo letras (A-Z, a-z), sin espacios ni símbolos.
+2025-06-24 23:00:15,914 - ERROR - \u274c La clave debe contener solo letras (A-Z, a-z), sin espacios ni símbolos.
