@@ -77,5 +77,4 @@ pip install -r requerimientos.txt
 
 ## Autor
 - David Ricardo Ordoñez Mora
-- Estudiante de Ingeniería de Software y Computación
 - Bootcamp Seguridad Informática - TalentoTech

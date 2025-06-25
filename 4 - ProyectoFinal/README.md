@@ -100,7 +100,3 @@ Incluye interfaz gráfica (interfaz.py), manejo de errores (logs/error.log), est
     Proyecto de seguridad informática (Bootcamp / TalentoTech)
 
 
-# Licencia
-
-MIT License. Puedes modificar, compartir y usar libremente, dándole crédito al autor original.
-
