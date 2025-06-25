@@ -1,6 +1,5 @@
-# interfaz.py
 """
-Interfaz gráfica del sistema de cifrado de archivos usando Vigenère y Fernet.
+interfaz.py - Interfaz gráfica del sistema de cifrado de archivos usando Vigenère y Fernet.
 Permite al usuario seleccionar un archivo, ingresar una clave (para Vigenère),
 y ejecutar operaciones de cifrado y descifrado mediante una GUI amigable.
 
@@ -15,7 +14,7 @@ Archivos soportados:
     - .cif (Solo para descifrado Fernet)
 """
 
-# Importacion de librerias
+# Importación de librerías
 import os
 import logging
 import tkinter as tk
@@ -28,36 +27,36 @@ from mainFernet import cifrarFernet, descifrarFernet
 # Crear carpeta de logs si no existe
 os.makedirs("logs", exist_ok=True)
 
-# Configuración del logger para errores
+# Configuración del logger
 logging.basicConfig(
     filename='logs/error.log',
     level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-# Colores definidos para la interfaz
+# Colores de la interfaz
 COLORFONDO = "#455372"
 COLORCONTENEDOR = "#336699"
 COLORBOTON = "#FFFFF0"
 COLORTEXTO = "#FFFFF0"
 COLORALERTA = "#CC3333"
 
-# Variable global para la ruta del archivo seleccionado
+# Variable global para la ruta del archivo
 archivoSeleccionado = ""
 
 def seleccionarArchivo():
     """
-    Permite al usuario seleccionar un archivo para operaciones de cifrado o descifrado.
-    Muestra el nombre del archivo seleccionado en la interfaz.
+    Permite al usuario seleccionar un archivo y muestra su nombre.
     """
     global archivoSeleccionado
     ruta = filedialog.askopenfilename(
         title="Seleccionar archivo",
         filetypes=[
+            ("Archivos cifrados Fernet", "*.cif"),
             ("Archivos de texto", "*.txt"),
             ("Documentos PDF", "*.pdf"),
             ("Documentos Word", "*.docx"),
-            ("Archivos cifrados Fernet", "*.cif")  # Incluye opción para Fernet
+            ("Todos los archivos", "*.*")
         ]
     )
     if ruta:
@@ -66,8 +65,7 @@ def seleccionarArchivo():
 
 def cifrarVigenereDesdeGui():
     """
-    Ejecuta el proceso de cifrado Vigenère desde la interfaz.
-    Verifica que se haya seleccionado un archivo y una clave válida.
+    Ejecuta cifrado Vigenère desde la interfaz.
     """
     if not archivoSeleccionado:
         messagebox.showwarning("Atención", "Debes seleccionar un archivo primero.")
@@ -81,8 +79,7 @@ def cifrarVigenereDesdeGui():
 
 def descifrarVigenereDesdeGui():
     """
-    Ejecuta el proceso de descifrado Vigenère desde la interfaz.
-    Requiere la clave original usada para el cifrado.
+    Ejecuta descifrado Vigenère desde la interfaz.
     """
     if not archivoSeleccionado:
         messagebox.showwarning("Atención", "Selecciona el archivo cifrado.")
@@ -96,8 +93,7 @@ def descifrarVigenereDesdeGui():
 
 def cifrarFernetDesdeGui():
     """
-    Ejecuta el cifrado Fernet desde la interfaz.
-    Utiliza una clave generada o previamente guardada.
+    Ejecuta cifrado Fernet desde la interfaz.
     """
     if not archivoSeleccionado:
         messagebox.showwarning("Atención", "Debes seleccionar un archivo primero.")
@@ -107,8 +103,7 @@ def cifrarFernetDesdeGui():
 
 def descifrarFernetDesdeGui():
     """
-    Ejecuta el proceso de descifrado Fernet desde la interfaz.
-    Solo se permite si el archivo seleccionado tiene extensión .cif.
+    Ejecuta descifrado Fernet desde la interfaz.
     """
     if not archivoSeleccionado:
         messagebox.showwarning("Atención", "Selecciona un archivo .cif.")
@@ -121,8 +116,7 @@ def descifrarFernetDesdeGui():
 
 def interfazPrincipal():
     """
-    Crea la ventana principal del sistema.
-    Incluye botones para seleccionar archivos, ingresar claves y ejecutar cifrado/descifrado.
+    Crea la ventana principal con botones y campos necesarios.
     """
     global etiquetaRuta, entradaClave
 
@@ -144,7 +138,7 @@ def interfazPrincipal():
         fg=COLORTEXTO
     ).pack(pady=(0, 20))
 
-    # Botón para seleccionar archivo
+    # Botón Seleccionar Archivo
     tk.Button(
         contenedor,
         text="Seleccionar archivo",
@@ -155,7 +149,7 @@ def interfazPrincipal():
         relief="flat"
     ).pack(pady=10, fill="x")
 
-    # Ruta del archivo seleccionado
+    # Mostrar ruta del archivo
     etiquetaRuta = tk.Label(
         contenedor,
         text="Ningún archivo seleccionado",
@@ -165,7 +159,7 @@ def interfazPrincipal():
     )
     etiquetaRuta.pack(pady=(5, 15))
 
-    # Campo de entrada para la clave
+    # Campo clave Vigenère
     tk.Label(
         contenedor,
         text="Clave para Vigenère:",
@@ -181,7 +175,7 @@ def interfazPrincipal():
     )
     entradaClave.pack(pady=(0, 15))
 
-    # Botones para Vigenère
+    # Botones Vigenère
     tk.Button(
         contenedor,
         text="Cifrar Vigenère",
@@ -202,7 +196,7 @@ def interfazPrincipal():
         relief="flat"
     ).pack(pady=5, fill="x")
 
-    # Botones para Fernet
+    # Botones Fernet
     tk.Button(
         contenedor,
         text="Cifrar Fernet",
@@ -223,7 +217,7 @@ def interfazPrincipal():
         relief="flat"
     ).pack(pady=5, fill="x")
 
-    # Botón para cerrar
+    # Botón salir
     tk.Button(
         contenedor,
         text="Salir",
@@ -236,6 +230,6 @@ def interfazPrincipal():
 
     ventana.mainloop()
 
-# Punto de entrada principal
+# Ejecución principal
 if __name__ == "__main__":
     interfazPrincipal()

@@ -1,7 +1,7 @@
 """
-vigenere.py - Módulo de cifrado y descifrado de archivos usando Vigenère.
-Soporta archivos .txt, .pdf y .docx.
-Incluye funciones para lectura, escritura, cifrado y descifrado de contenido.
+vigenere.py - Módulo de cifrado y descifrado de archivos usando el algoritmo Vigenère.
+Soporta archivos de texto (.txt), documentos Word (.docx) y PDF (.pdf).
+Incluye funciones para leer archivos, guardar resultados, y aplicar el cifrado y descifrado.
 """
 
 import os
@@ -12,13 +12,16 @@ from reportlab.lib.pagesizes import letter
 
 def leerArchivo(ruta):
     """
-    Lee el contenido de un archivo de texto, PDF o Word (.docx).
-    
+    Lee el contenido de un archivo (.txt, .pdf, .docx) y lo convierte a texto plano.
+
     Parámetros:
         ruta (str): Ruta del archivo a leer.
-    
+
     Retorna:
         str: Contenido del archivo como texto plano.
+
+    Lanza:
+        ValueError: Si el formato del archivo no es compatible.
     """
     ext = os.path.splitext(ruta)[1].lower()
 
@@ -35,18 +38,21 @@ def leerArchivo(ruta):
 
     elif ext == '.docx':
         doc = docx.Document(ruta)
-        return "\n".join([p.text for p in doc.paragraphs])
+        return "\n".join(p.text for p in doc.paragraphs)
 
     else:
-        raise ValueError("Formato de archivo no soportado")
+        raise ValueError("❌ Formato de archivo no soportado para lectura.")
 
 def guardarArchivo(texto, ruta):
     """
-    Guarda el contenido de texto plano en formato .txt, .pdf o .docx.
-    
+    Guarda texto plano en un archivo con formato .txt, .pdf o .docx.
+
     Parámetros:
-        texto (str): Texto a guardar.
-        ruta (str): Ruta del archivo destino.
+        texto (str): Texto a escribir.
+        ruta (str): Ruta donde se guardará el archivo.
+
+    Lanza:
+        ValueError: Si el formato del archivo no es compatible.
     """
     ext = os.path.splitext(ruta)[1].lower()
 
@@ -58,7 +64,6 @@ def guardarArchivo(texto, ruta):
         c = canvas.Canvas(ruta, pagesize=letter)
         width, height = letter
         y = height - 40
-
         for linea in texto.split('\n'):
             c.drawString(40, y, linea[:100])
             y -= 15
@@ -74,16 +79,16 @@ def guardarArchivo(texto, ruta):
         doc.save(ruta)
 
     else:
-        raise ValueError("Formato de archivo no soportado")
+        raise ValueError("❌ Formato de archivo no soportado para escritura.")
 
 def cifrarVigenere(texto, clave):
     """
-    Aplica el cifrado Vigenère a un texto plano.
-    
+    Cifra un texto plano usando el algoritmo Vigenère.
+
     Parámetros:
-        texto (str): Texto original.
-        clave (str): Clave secreta para el cifrado.
-    
+        texto (str): Texto original a cifrar.
+        clave (str): Clave secreta para el cifrado (solo letras).
+
     Retorna:
         str: Texto cifrado.
     """
@@ -105,12 +110,12 @@ def cifrarVigenere(texto, clave):
 
 def descifrarVigenere(texto, clave):
     """
-    Descifra un texto previamente cifrado con el algoritmo Vigenère.
-    
+    Descifra un texto previamente cifrado con Vigenère.
+
     Parámetros:
         texto (str): Texto cifrado.
-        clave (str): Clave original utilizada en el cifrado.
-    
+        clave (str): Clave utilizada originalmente para cifrar.
+
     Retorna:
         str: Texto descifrado.
     """

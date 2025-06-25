@@ -1,118 +1,142 @@
 """
-main.py - Módulo principal para ejecutar el cifrado y descifrado Vigenère.
-Incluye registro de errores y manejo de archivos .txt, .pdf y .docx.
+main.py - Módulo principal para ejecutar el cifrado y descifrado con el algoritmo Vigenère.
+Incluye registro de errores, validación de clave y soporte para archivos .txt, .pdf y .docx.
 """
 
 import os
 import logging
-from funciones import vigenere  # Importa el módulo que contiene las funciones del algoritmo Vigenère
+from funciones import vigenere  # Módulo con funciones de cifrado Vigenère
 
 # Crear carpeta de logs si no existe
 os.makedirs("logs", exist_ok=True)
 
-# Configurar el sistema de logging para registrar errores
+# Configurar logging
 logging.basicConfig(
-    filename='logs/error.log',  # Archivo de registro
-    level=logging.ERROR,        # Solo errores serán registrados
+    filename='logs/error.log',
+    level=logging.ERROR,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-def cifrarVigenere(rutaArchivo, clave):
+def claveValida(clave):
     """
-    Cifra un archivo utilizando el algoritmo Vigenère.
+    Valida que la clave esté compuesta solo por letras (mayúsculas o minúsculas).
 
     Parámetros:
-        rutaArchivo (str): Ruta del archivo a cifrar.
-        clave (str): Clave de cifrado tipo texto.
+        clave (str): Clave ingresada por el usuario.
+
+    Retorna:
+        bool: True si es válida, False si contiene caracteres no permitidos.
+    """
+    return clave.isalpha()
+
+def cifrarVigenere(rutaArchivo, clave):
+    """
+    Cifra un archivo con el algoritmo Vigenère.
+
+    Parámetros:
+        rutaArchivo (str): Ruta del archivo de entrada.
+        clave (str): Clave de cifrado.
 
     Retorna:
         str: Mensaje con la ruta del archivo cifrado o error.
     """
     if not os.path.exists(rutaArchivo):
-        mensaje = "El archivo no existe."
+        mensaje = "❌ El archivo no existe."
+        logging.error(mensaje)
+        return mensaje
+
+    if not claveValida(clave):
+        mensaje = "❌ La clave debe contener solo letras (A-Z, a-z), sin espacios ni símbolos."
         logging.error(mensaje)
         return mensaje
 
     try:
-        extension = os.path.splitext(rutaArchivo)[1].lower()
         texto = vigenere.leerArchivo(rutaArchivo)
-
-        if not texto:
-            mensaje = "El archivo está vacío o no pudo ser leído."
+        if not texto.strip():
+            mensaje = "⚠️ El archivo está vacío o no pudo ser leído."
             logging.error(mensaje)
             return mensaje
 
         cifrado = vigenere.cifrarVigenere(texto, clave)
+        extension = os.path.splitext(rutaArchivo)[1].lower()
         rutaCifrado = rutaArchivo.rsplit('.', 1)[0] + "_Vigenere" + extension
         vigenere.guardarArchivo(cifrado, rutaCifrado)
 
-        return f"✅ Cifrado Vigenère completado.\nArchivo cifrado: {rutaCifrado}"
+        return f"✅ Cifrado Vigenère completado.\n📄 Archivo cifrado: {rutaCifrado}"
 
     except Exception as e:
-        logging.error(f"Error durante el cifrado Vigenère: {str(e)}")
+        logging.error(f"❌ Error durante el cifrado Vigenère: {str(e)}")
         return "❌ Error durante el cifrado. Revisa el archivo 'logs/error.log'."
 
 def descifrarVigenere(rutaArchivo, clave):
     """
-    Descifra un archivo previamente cifrado con el algoritmo Vigenère.
+    Descifra un archivo cifrado con Vigenère.
 
     Parámetros:
         rutaArchivo (str): Ruta del archivo cifrado.
-        clave (str): Clave de cifrado tipo texto.
+        clave (str): Clave usada para el cifrado original.
 
     Retorna:
         str: Mensaje con la ruta del archivo descifrado o error.
     """
     if not os.path.exists(rutaArchivo):
-        mensaje = "El archivo no existe."
+        mensaje = "❌ El archivo no existe."
+        logging.error(mensaje)
+        return mensaje
+
+    if not claveValida(clave):
+        mensaje = "❌ La clave debe contener solo letras (A-Z, a-z), sin espacios ni símbolos."
         logging.error(mensaje)
         return mensaje
 
     try:
-        extension = os.path.splitext(rutaArchivo)[1].lower()
         texto = vigenere.leerArchivo(rutaArchivo)
-
-        if not texto:
-            mensaje = "El archivo está vacío o no pudo ser leído."
+        if not texto.strip():
+            mensaje = "⚠️ El archivo está vacío o no pudo ser leído."
             logging.error(mensaje)
             return mensaje
 
         descifrado = vigenere.descifrarVigenere(texto, clave)
+        extension = os.path.splitext(rutaArchivo)[1].lower()
         rutaDescifrado = rutaArchivo.rsplit('.', 1)[0] + "_Vigenere_Descifrado" + extension
         vigenere.guardarArchivo(descifrado, rutaDescifrado)
 
-        return f"✅ Descifrado Vigenère completado.\nArchivo descifrado: {rutaDescifrado}"
+        return f"✅ Descifrado Vigenère completado.\n📄 Archivo descifrado: {rutaDescifrado}"
 
     except Exception as e:
-        logging.error(f"Error durante el descifrado Vigenère: {str(e)}")
+        logging.error(f"❌ Error durante el descifrado Vigenère: {str(e)}")
         return "❌ Error durante el descifrado. Revisa el archivo 'logs/error.log'."
 
 def ejecutarVigenere(rutaArchivo, clave):
     """
-    Ejecuta el proceso completo de cifrado y descifrado usando el algoritmo Vigenère.
+    Ejecuta cifrado y descifrado completo de un archivo con Vigenère.
 
     Parámetros:
-        rutaArchivo (str): Ruta del archivo a procesar.
-        clave (str): Clave de cifrado tipo texto.
+        rutaArchivo (str): Ruta del archivo de entrada.
+        clave (str): Clave de cifrado.
 
     Retorna:
-        str: Mensaje con los resultados o un error.
+        str: Mensaje con rutas de archivos cifrado y descifrado o error.
     """
     if not os.path.exists(rutaArchivo):
-        mensaje = "El archivo no existe."
+        mensaje = "❌ El archivo no existe."
+        logging.error(mensaje)
+        return mensaje
+
+    if not claveValida(clave):
+        mensaje = "❌ La clave debe contener solo letras (A-Z, a-z), sin espacios ni símbolos."
         logging.error(mensaje)
         return mensaje
 
     try:
-        extension = os.path.splitext(rutaArchivo)[1].lower()
         texto = vigenere.leerArchivo(rutaArchivo)
-
-        if not texto:
-            mensaje = "El archivo está vacío o no pudo ser leído."
+        if not texto.strip():
+            mensaje = "⚠️ El archivo está vacío o no pudo ser leído."
             logging.error(mensaje)
             return mensaje
 
         cifrado = vigenere.cifrarVigenere(texto, clave)
+        extension = os.path.splitext(rutaArchivo)[1].lower()
         rutaCifrado = rutaArchivo.rsplit('.', 1)[0] + "_Vigenere" + extension
         vigenere.guardarArchivo(cifrado, rutaCifrado)
 
@@ -122,10 +146,10 @@ def ejecutarVigenere(rutaArchivo, clave):
 
         return (
             "✅ Proceso Vigenère completado con éxito.\n"
-            f"Archivo cifrado: {rutaCifrado}\n"
-            f"Archivo descifrado: {rutaDescifrado}"
+            f"📄 Archivo cifrado: {rutaCifrado}\n"
+            f"📄 Archivo descifrado: {rutaDescifrado}"
         )
 
     except Exception as e:
-        logging.error(f"Error durante el proceso Vigenère: {str(e)}")
-        return "Ha ocurrido un error. Revisa el archivo 'logs/error.log' para más detalles."
+        logging.error(f"❌ Error durante el proceso Vigenère: {str(e)}")
+        return "❌ Ha ocurrido un error. Revisa el archivo 'logs/error.log'."

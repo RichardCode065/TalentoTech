@@ -1,0 +1,4 @@
+2025-06-24 22:19:56,171 - ERROR - El archivo cifrado no existe.
+2025-06-24 22:20:12,427 - ERROR - El archivo cifrado no existe.
+2025-06-24 22:20:16,507 - ERROR - Error durante el cifrado Fernet: Tipo de archivo no soportado para lectura
+2025-06-24 22:20:34,739 - ERROR - El archivo cifrado no existe.

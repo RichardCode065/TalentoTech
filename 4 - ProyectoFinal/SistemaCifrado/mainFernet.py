@@ -47,38 +47,42 @@ def cifrarFernet(rutaArchivo):
         rutaCifrado = rutaArchivo.rsplit('.', 1)[0] + "_Fernet.cif"
         fernet.cifrarArchivo(rutaArchivo, clave, rutaCifrado)
 
-        return f"✅ Cifrado Fernet completado.\nArchivo cifrado: {rutaCifrado}"
+        return f"✅ Cifrado Fernet completado.\n📄 Archivo cifrado: {rutaCifrado}"
 
     except Exception as error:
         logging.error(f"Error durante el cifrado Fernet: {str(error)}")
         return "❌ Error durante el cifrado. Revisa 'logs/error.log'."
 
-def descifrarFernet(rutaArchivoOriginal):
+def descifrarFernet(rutaCifrado):
     """
-    Descifra un archivo cifrado con Fernet y lo reconstruye en su formato original.
+    Descifra un archivo cifrado con Fernet (.cif) y lo reconstruye en su formato original.
 
     Parámetros:
-        rutaArchivoOriginal (str): Ruta del archivo original que fue cifrado.
+        rutaCifrado (str): Ruta del archivo cifrado (.cif).
 
     Retorna:
         str: Ruta del archivo descifrado o mensaje de error.
     """
     rutaClave = "claves/clave.key"
-    rutaCifrado = rutaArchivoOriginal.rsplit('.', 1)[0] + "_Fernet.cif"
 
     if not os.path.exists(rutaCifrado):
-        mensaje = "El archivo cifrado no existe."
+        mensaje = "❌ El archivo cifrado no existe."
         logging.error(mensaje)
         return mensaje
 
     try:
         clave = fernet.cargarClave(rutaClave)
-        extension = os.path.splitext(rutaArchivoOriginal)[1].lower()
-        rutaDescifrado = rutaArchivoOriginal.rsplit('.', 1)[0] + "_Fernet_Descifrado" + extension
+
+        # Extraer base: quitar "_Fernet.cif"
+        baseSinExtension = rutaCifrado.rsplit("_Fernet.cif", 1)[0]
+
+        # Recuperar extensión original
+        extensionOriginal = os.path.splitext(baseSinExtension)[1]
+        rutaDescifrado = baseSinExtension + "_Fernet_Descifrado" + extensionOriginal
 
         fernet.descifrarArchivo(rutaCifrado, clave, rutaDescifrado)
 
-        return f"✅ Descifrado Fernet completado.\nArchivo descifrado: {rutaDescifrado}"
+        return f"✅ Descifrado Fernet completado.\n📄 Archivo descifrado: {rutaDescifrado}"
 
     except Exception as error:
         logging.error(f"Error durante el descifrado Fernet: {str(error)}")
@@ -95,5 +99,9 @@ def ejecutarFernet(rutaArchivo):
         str: Resumen del proceso o mensaje de error.
     """
     mensaje1 = cifrarFernet(rutaArchivo)
-    mensaje2 = descifrarFernet(rutaArchivo)
+
+    # Recuperar nombre del archivo cifrado
+    rutaCifrada = rutaArchivo.rsplit('.', 1)[0] + "_Fernet.cif"
+
+    mensaje2 = descifrarFernet(rutaCifrada)
     return f"{mensaje1}\n{mensaje2}"

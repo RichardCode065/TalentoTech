@@ -5,7 +5,6 @@ Incluye funciones para generación/carga de claves, lectura/escritura de archivo
 y operaciones de cifrado y descifrado.
 """
 
-
 import os
 import docx
 from reportlab.pdfgen import canvas
@@ -15,38 +14,19 @@ from cryptography.fernet import Fernet
 from PyPDF2 import PdfReader
 
 def generarClave(rutaDestino):
-    """
-    Genera una clave Fernet y la guarda en un archivo.
-    Parámetros:
-        rutaDestino (str): Ruta donde se guardará la clave generada.
-    Retorna:
-        bytes: Clave generada.
-    """
+    """Genera una clave Fernet y la guarda en un archivo."""
     clave = Fernet.generate_key()
     with open(rutaDestino, 'wb') as archivoClave:
         archivoClave.write(clave)
     return clave
 
 def cargarClave(ruta):
-    """
-    Carga una clave Fernet desde un archivo.
-    Parámetros:
-        ruta (str): Ruta del archivo que contiene la clave.
-    Retorna:
-        bytes: Clave cargada.
-    """
+    """Carga una clave Fernet desde un archivo."""
     with open(ruta, 'rb') as archivo:
         return archivo.read()
 
 def leerContenido(ruta):
-    """
-    Lee el contenido de un archivo según su tipo.
-    Soporta archivos .txt, .pdf y .docx.
-    Parámetros:
-        ruta (str): Ruta del archivo a leer.
-    Retorna:
-        str: Contenido del archivo como texto plano.
-    """
+    """Lee el contenido de un archivo (.txt, .pdf, .docx) y lo retorna como texto plano."""
     extension = os.path.splitext(ruta)[1].lower()
     if extension == '.txt':
         with open(ruta, 'r', encoding='utf-8') as f:
@@ -64,18 +44,13 @@ def leerContenido(ruta):
         raise ValueError("Tipo de archivo no soportado para lectura")
 
 def escribirContenido(ruta, contenido):
-    """
-    Escribe texto plano en un archivo según su extensión.
-    Soporta archivos .txt, .pdf y .docx.
-    Parámetros:
-        ruta (str): Ruta del archivo a escribir.
-        contenido (str): Texto plano a escribir.
-    """
+    """Escribe contenido plano en un archivo con extensión .txt, .pdf o .docx según su extensión."""
     extension = os.path.splitext(ruta)[1].lower()
 
     if extension == '.txt':
         with open(ruta, 'w', encoding='utf-8') as f:
             f.write(contenido)
+
     elif extension == '.pdf':
         c = canvas.Canvas(ruta, pagesize=letter)
         width, height = letter
@@ -87,44 +62,59 @@ def escribirContenido(ruta, contenido):
                 c.showPage()
                 y = height - 40
         c.save()
+
     elif extension == '.docx':
         doc = Document()
         for linea in contenido.split('\n'):
             doc.add_paragraph(linea)
         doc.save(ruta)
+
     else:
         raise ValueError("Tipo de archivo no soportado para escritura")
 
 def cifrarArchivo(rutaEntrada, clave, rutaSalida):
     """
-    Cifra el contenido de un archivo y lo guarda como binario.
-    Parámetros:
-        rutaEntrada (str): Ruta del archivo original.
-        clave (bytes): Clave Fernet para cifrado.
-        rutaSalida (str): Ruta del archivo cifrado.
-    Retorna:
-        str: Ruta del archivo cifrado.
+    Cifra el contenido de un archivo y lo guarda como binario,
+    incluyendo la extensión original como encabezado.
     """
     fernet = Fernet(clave)
+    extension = os.path.splitext(rutaEntrada)[1].lower()
     texto = leerContenido(rutaEntrada)
-    datosCifrados = fernet.encrypt(texto.encode('utf-8'))
+
+    # Incluir extensión original como encabezado (ejemplo: "EXT:.pdf\n")
+    datosConExtension = f"EXT:{extension}\n{texto}"
+    datosCifrados = fernet.encrypt(datosConExtension.encode('utf-8'))
+
     with open(rutaSalida, 'wb') as f:
         f.write(datosCifrados)
+
     return rutaSalida
 
-def descifrarArchivo(rutaEntrada, clave, rutaSalida):
+def descifrarArchivo(rutaEntrada, clave, rutaSalidaSinExtension):
     """
-    Descifra un archivo binario cifrado con Fernet.
-    Parámetros:
-        rutaEntrada (str): Ruta del archivo cifrado (.bin).
-        clave (bytes): Clave Fernet para descifrado.
-        rutaSalida (str): Ruta para guardar el archivo descifrado.
-    Retorna:
-        str: Ruta del archivo descifrado.
+    Descifra un archivo cifrado con Fernet y lo reconstruye con su extensión original.
+    Retorna la ruta del archivo creado o un mensaje de error.
     """
-    fernet = Fernet(clave)
-    with open(rutaEntrada, 'rb') as f:
-        datosCifrados = f.read()
-    datos = fernet.decrypt(datosCifrados).decode('utf-8')
-    escribirContenido(rutaSalida, datos)
-    return rutaSalida
+    if not os.path.exists(rutaEntrada):
+        return "❌ El archivo cifrado no existe."
+
+    try:
+        fernet = Fernet(clave)
+        with open(rutaEntrada, 'rb') as f:
+            datosCifrados = f.read()
+
+        datosDescifrados = fernet.decrypt(datosCifrados).decode('utf-8')
+
+        # Extraer la extensión original
+        if not datosDescifrados.startswith("EXT:"):
+            return "❌ No se encontró la extensión original en el archivo cifrado."
+
+        linea, contenido = datosDescifrados.split("\n", 1)
+        extension = linea.replace("EXT:", "").strip()
+
+        rutaSalida = rutaSalidaSinExtension + extension
+        escribirContenido(rutaSalida, contenido)
+        return rutaSalida
+
+    except Exception as e:
+        return f"❌ Error durante el descifrado: {str(e)}"
